@@ -1,0 +1,6 @@
+.pio/
+.vscode/
+.host_build/
+logs/
+__pycache__/
+*.pyc
