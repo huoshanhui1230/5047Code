@@ -48,7 +48,10 @@ struct CalReport {
   int dryMv = 0, wetMv = 0;
 };
 
-// 三级验收: 跨度 ≥ 10 × 合并标准差; 三级单调; 同级极差 < 跨度 5%
+// 同级极差上限 (占跨度的百分比)。原定 5%; 11/2 首次三级标定最大 8.6%, 团队决定放宽到 10%
+constexpr double CAL_MAX_RANGE_PCT = 10.0;
+
+// 三级验收: 跨度 ≥ 10 × 合并标准差; 三级单调; 同级极差 < 跨度 10% (CAL_MAX_RANGE_PCT)
 inline CalReport calibrationReport(const std::vector<int>& dry, const std::vector<int>& mid,
                                    const std::vector<int>& wet) {
   CalReport r;
@@ -63,7 +66,7 @@ inline CalReport calibrationReport(const std::vector<int>& dry, const std::vecto
   r.monotonic = (d.mean - m.mean) * (m.mean - w.mean) > 0;
   const double maxRange = std::fmax(d.range, std::fmax(m.range, w.range));
   r.maxRangePct = r.span > 0 ? 100.0 * maxRange / r.span : 100.0;
-  r.repeatOk = r.maxRangePct < 5.0;
+  r.repeatOk = r.maxRangePct < CAL_MAX_RANGE_PCT;
   r.dryMv = static_cast<int>(std::lround(d.mean));
   r.wetMv = static_cast<int>(std::lround(w.mean));
   r.rMid = computeR(static_cast<int>(std::lround(m.mean)), r.dryMv, r.wetMv);

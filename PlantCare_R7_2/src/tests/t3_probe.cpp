@@ -4,7 +4,7 @@
 //    合格: 空气与水差值 > 600 mV, 同一状态极差 < 20 mV, 全部 < 2450 mV
 //  - 三级标定 (方案 R7.2 第 5 章): 每次插好探头后输入大写 D (干端) / M (中间级) / W (湿端, 浇透沥干)
 //    每级 3 次 (每次拔出、擦干、按同一深度重插), 然后输入 report:
-//    跨度 >= 10 x 合并标准差、三级单调、同级极差 < 跨度 5% -> 给出 cal set 和临时 L/H
+//    跨度 >= 10 x 合并标准差、三级单调、同级极差 < 跨度 10% -> 给出 cal set 和临时 L/H
 //  - reset 清空记录, s 开关持续输出
 #include <Arduino.h>
 #include <map>
@@ -65,8 +65,8 @@ void report() {
     const CalReport r = calibrationReport(rec['D'], rec['M'], rec['W']);
     Serial.printf("  calibration: span %.0f mV, pooled sd %.1f, span/sd %.1f (>=10 %s)\n", r.span, r.pooledSd, r.ratio,
                   r.spanOk ? "ok" : "NO");
-    Serial.printf("               monotonic %s, max range %.1f%% of span (<5%% %s) -> %s\n", r.monotonic ? "ok" : "NO",
-                  r.maxRangePct, r.repeatOk ? "ok" : "NO", r.ok ? "PASS" : "FAIL");
+    Serial.printf("               monotonic %s, max range %.1f%% of span (<%.0f%% %s) -> %s\n", r.monotonic ? "ok" : "NO",
+                  r.maxRangePct, CAL_MAX_RANGE_PCT, r.repeatOk ? "ok" : "NO", r.ok ? "PASS" : "FAIL");
     if (r.wetMv < VALID_MIN_MV + 50)
       Serial.printf("  WARNING: wet level %d mV is at the ADC floor; drain the wet sample longer and measure W again\n", r.wetMv);
     if (r.ok) {

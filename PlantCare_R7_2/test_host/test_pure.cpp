@@ -249,6 +249,11 @@ static void test_calmath() {
   CHECK(r.rMid > 45 && r.rMid < 50);
   CalReport bad = calibrationReport({2100, 2000, 2200}, {1650, 1655, 1648}, {1152, 1149, 1155});
   CHECK(!bad.repeatOk); CHECK(!bad.ok);
+  // 同级极差判据 10%: 8.6% (与 11/2 实测最大值相当) 通过, 10.5% 不通过
+  CalReport r86 = calibrationReport({2101, 2060, 2142}, {1650, 1655, 1648}, {1152, 1149, 1155});
+  CHECK(r86.maxRangePct > 8.5 && r86.maxRangePct < 8.8); CHECK(r86.repeatOk); CHECK(r86.ok);
+  CalReport r105 = calibrationReport({2101, 2051, 2151}, {1650, 1655, 1648}, {1152, 1149, 1155});
+  CHECK(r105.maxRangePct > 10.0); CHECK(!r105.repeatOk); CHECK(!r105.ok);
   CalReport nonmono = calibrationReport({2100, 2101, 2099}, {2300, 2301, 2299}, {1150, 1151, 1149});
   CHECK(!nonmono.monotonic);
 }
